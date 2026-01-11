@@ -147,6 +147,8 @@ ConvertData? _convertData(DartObject obj, FieldElement element, bool isFrom) {
       // We keep things simple in this case. We rely on inferred type arguments
       // to the `fromJson` function.
       // TODO: consider adding error checking here if there is confusion.
+    } else if (executableElement.typeParameters.isNotEmpty) {
+      // TODO: check that the generic function allows the target type
     } else if (!returnType.isAssignableTo(element.type)) {
       if (returnType.promoteNonNullable().isAssignableTo(element.type) &&
           hasDefaultValue) {
@@ -167,6 +169,8 @@ ConvertData? _convertData(DartObject obj, FieldElement element, bool isFrom) {
       // We keep things simple in this case. We rely on inferred type arguments
       // to the `fromJson` function.
       // TODO: consider adding error checking here if there is confusion.
+    } else if (executableElement.typeParameters.isNotEmpty) {
+      // TODO: check that the generic function allows the target type
     } else if (!element.type.isAssignableTo(argType)) {
       final argTypeCode = typeToCode(argType);
       final elementTypeCode = typeToCode(element.type);

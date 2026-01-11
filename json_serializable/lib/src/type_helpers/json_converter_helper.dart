@@ -281,9 +281,10 @@ _ConverterMatch? _compatibleMatch(
   ElementAnnotation? annotation,
   DartObject constantValue,
 ) {
-  final converterClassElement = constantValue.type!.element as ClassElement;
+  final converterType = constantValue.type as InterfaceType;
+  final converterClassElement = converterType.element as ClassElement;
 
-  final jsonConverterSuper = converterClassElement.allSupertypes
+  final jsonConverterSuper = converterType.allSupertypes
       .where((e) => _jsonConverterChecker.isExactly(e.element))
       .singleOrNull;
 
@@ -298,16 +299,31 @@ _ConverterMatch? _compatibleMatch(
 
   // Allow assigning T to T?
   if (fieldType == targetType || fieldType == targetType.promoteNonNullable()) {
+    String? genericTypeArg;
+    if (converterType.typeArguments.isNotEmpty) {
+      genericTypeArg = converterType.typeArguments.map(typeToCode).join(', ');
+    }
     return _ConverterMatch(
       annotation,
       constantValue,
       jsonConverterSuper.typeArguments[1],
-      null,
+      genericTypeArg,
       fieldType,
     );
   }
 
-  if (fieldType is TypeParameterType && targetType is TypeParameterType) {
+  final jsonConverterSuperDefinition = converterClassElement.allSupertypes
+      .where((e) => _jsonConverterChecker.isExactly(e.element))
+      .singleOrNull;
+
+  if (jsonConverterSuperDefinition == null) {
+    return null;
+  }
+
+  final fieldTypeDefinition = jsonConverterSuperDefinition.typeArguments[0];
+
+  if (fieldTypeDefinition is TypeParameterType &&
+      targetType is TypeParameterType) {
     assert(annotation?.element is! PropertyAccessorElement);
     assert(converterClassElement.typeParameters.isNotEmpty);
     if (converterClassElement.typeParameters.length > 1) {
@@ -322,9 +338,9 @@ _ConverterMatch? _compatibleMatch(
     return _ConverterMatch(
       annotation,
       constantValue,
-      jsonConverterSuper.typeArguments[1],
+      jsonConverterSuperDefinition.typeArguments[1],
       '${targetType.element.name}${targetType.isNullableType ? '?' : ''}',
-      fieldType,
+      fieldTypeDefinition,
     );
   }
 

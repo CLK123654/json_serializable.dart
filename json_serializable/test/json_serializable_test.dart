@@ -123,6 +123,8 @@ const _expectedAnnotatedTests = {
   'Reproduce869NullableGenericType',
   'Reproduce869NullableGenericTypeWithDefault',
   'SameCtorAndJsonKeyDefaultValue',
+  'Serializable',
+  'SerializableConverter',
   'SetSupport',
   'SubType',
   'SubTypeWithAnnotatedFieldOverrideExtends',

@@ -3,7 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:analyzer/dart/element/type.dart';
-import 'package:source_helper/source_helper.dart';
 
 import '../lambda_result.dart';
 import '../type_helper.dart';
@@ -39,10 +38,6 @@ class ConvertHelper extends TypeHelper<TypeHelperContextWithConvert> {
       return null;
     }
 
-    assert(
-      toJsonData.paramType is TypeParameterType ||
-          targetType.isAssignableTo(toJsonData.paramType),
-    );
     return LambdaResult(expression, toJsonData.name);
   }
 
