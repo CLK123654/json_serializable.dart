@@ -17,6 +17,9 @@ Person _$PersonFromJson(Map<String, dynamic> json) => Person(
   orders: (json['orders'] as List<dynamic>?)
       ?.map((e) => Order.fromJson(e as Map<String, dynamic>))
       .toList(),
+  testEnum:
+      $enumDecodeNullableValues(TestEnum.values, json['testEnum']) ??
+      TestEnum.value1,
 );
 
 Map<String, dynamic> _$PersonToJson(Person instance) => <String, dynamic>{
@@ -26,6 +29,7 @@ Map<String, dynamic> _$PersonToJson(Person instance) => <String, dynamic>{
   'date-of-birth': instance.dateOfBirth.toIso8601String(),
   'last-order': instance.lastOrder?.toIso8601String(),
   'orders': instance.orders,
+  'testEnum': instance.testEnum.name,
 };
 
 Order _$OrderFromJson(Map<String, dynamic> json) =>

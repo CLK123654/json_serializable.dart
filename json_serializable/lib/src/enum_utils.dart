@@ -40,7 +40,7 @@ String? enumValueMapFromType(
     nullWithNoAnnotation: nullWithNoAnnotation,
   );
 
-  if (enumMap == null) return null;
+  if (enumMap == null || _canSkipMap(targetType, enumMap)) return null;
 
   final items = enumMap.entries
       .map(
@@ -51,6 +51,51 @@ String? enumValueMapFromType(
       .join();
 
   return 'const ${constMapName(targetType)} = {\n$items\n};';
+}
+
+bool _canSkipMap(DartType targetType, Map<FieldElement, Object?> enumMap) {
+  final targetTypeElement = targetType.element;
+  if (targetTypeElement == null) return false;
+  final annotation = _jsonEnumChecker.firstAnnotationOf(targetTypeElement);
+  final jsonEnum = _fromAnnotation(annotation);
+
+  // If alwaysCreate is true, we should probably still create the map
+  // for backward compatibility or explicit use.
+  if (jsonEnum.alwaysCreate) return false;
+
+  for (var entry in enumMap.entries) {
+    final field = entry.key;
+    final value = entry.value;
+
+    // Check if it matches name
+    if (jsonEnum.valueField == null &&
+        jsonEnum.fieldRename == FieldRename.none &&
+        value == field.name) {
+      continue;
+    }
+
+    // Check if it matches valueField
+    if (jsonEnum.valueField != null) {
+      final reader = ConstantReader(field.computeConstantValue());
+      final valueReader = reader.read(jsonEnum.valueField!);
+      if (valueReader.validValueType && valueReader.literalValue == value) {
+        continue;
+      }
+    }
+
+    return false;
+  }
+
+  return true;
+}
+
+String enumValueAccess(DartType targetType) {
+  final targetTypeElement = targetType.element;
+  if (targetTypeElement == null) return 'name';
+  final annotation = _jsonEnumChecker.firstAnnotationOf(targetTypeElement);
+  final jsonEnum = _fromAnnotation(annotation);
+
+  return jsonEnum.valueField ?? 'name';
 }
 
 Map<FieldElement, Object?>? _enumMap(

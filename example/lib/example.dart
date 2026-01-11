@@ -21,6 +21,8 @@ class Person {
 
   List<Order> orders;
 
+  final TestEnum testEnum;
+
   Person(
     this.firstName,
     this.lastName,
@@ -28,6 +30,7 @@ class Person {
     this.middleName,
     this.lastOrder,
     List<Order>? orders,
+    this.testEnum = TestEnum.value1,
   }) : orders = orders ?? <Order>[];
 
   factory Person.fromJson(Map<String, dynamic> json) => _$PersonFromJson(json);
@@ -86,3 +89,11 @@ class Item {
 
 @JsonLiteral('data.json')
 Map get glossaryData => _$glossaryDataJsonLiteral;
+
+@JsonEnum()
+enum TestEnum {
+  @JsonValue('value1')
+  value1,
+  @JsonValue('value2')
+  value2,
+}

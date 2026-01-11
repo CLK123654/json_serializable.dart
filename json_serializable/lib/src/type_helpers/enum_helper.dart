@@ -9,6 +9,7 @@ import 'package:source_helper/source_helper.dart';
 import '../enum_utils.dart';
 import '../json_key_utils.dart';
 import '../type_helper.dart';
+import '../utils.dart';
 
 final simpleExpression = RegExp('^[a-zA-Z_]+\$');
 
@@ -21,20 +22,25 @@ class EnumHelper extends TypeHelper<TypeHelperContextWithConfig> {
     String expression,
     TypeHelperContextWithConfig context,
   ) {
-    final memberContent = enumValueMapFromType(targetType);
-
-    if (memberContent == null) {
+    final enumFields = iterateEnumFields(targetType);
+    if (enumFields == null) {
       return null;
     }
 
-    context.addMember(memberContent);
-
-    if (targetType.isNullableType ||
-        enumFieldWithNullInEncodeMap(targetType) == true) {
-      return '${constMapName(targetType)}[$expression]';
-    } else {
-      return '${constMapName(targetType)}[$expression]!';
+    final memberContent = enumValueMapFromType(targetType);
+    if (memberContent != null) {
+      context.addMember(memberContent);
+      if (targetType.isNullableType ||
+          enumFieldWithNullInEncodeMap(targetType) == true) {
+        return '${constMapName(targetType)}[$expression]';
+      } else {
+        return '${constMapName(targetType)}[$expression]!';
+      }
     }
+
+    final access = enumValueAccess(targetType);
+    final suffix = targetType.isNullableType ? '?' : '';
+    return '$expression$suffix.$access';
   }
 
   @override
@@ -44,12 +50,12 @@ class EnumHelper extends TypeHelper<TypeHelperContextWithConfig> {
     TypeHelperContextWithConfig context,
     bool defaultProvided,
   ) {
-    final memberContent = enumValueMapFromType(targetType);
-
-    if (memberContent == null) {
+    final enumFields = iterateEnumFields(targetType);
+    if (enumFields == null) {
       return null;
     }
 
+    final memberContent = enumValueMapFromType(targetType);
     final jsonKey = jsonKeyForField(context.fieldElement, context.config);
 
     if (!targetType.isNullableType &&
@@ -62,20 +68,43 @@ class EnumHelper extends TypeHelper<TypeHelperContextWithConfig> {
       );
     }
 
-    String functionName;
-    if (targetType.isNullableType || defaultProvided) {
-      functionName = r'$enumDecodeNullable';
-    } else {
-      functionName = r'$enumDecode';
+    if (memberContent != null) {
+      String functionName;
+      if (targetType.isNullableType || defaultProvided) {
+        functionName = r'$enumDecodeNullable';
+      } else {
+        functionName = r'$enumDecode';
+      }
+
+      context.addMember(memberContent);
+
+      final args = [
+        constMapName(targetType),
+        expression,
+        if (jsonKey.unknownEnumValue != null)
+          'unknownValue: ${jsonKey.unknownEnumValue}',
+      ];
+
+      return '$functionName(${args.join(', ')})';
     }
 
-    context.addMember(memberContent);
+    // No map! Use the new helpers.
+    String functionName;
+    if (targetType.isNullableType || defaultProvided) {
+      functionName = r'$enumDecodeNullableValues';
+    } else {
+      functionName = r'$enumDecodeValues';
+    }
+
+    final access = enumValueAccess(targetType);
+    final enumName = targetType.element!.name;
 
     final args = [
-      constMapName(targetType),
+      '$enumName.values',
       expression,
       if (jsonKey.unknownEnumValue != null)
         'unknownValue: ${jsonKey.unknownEnumValue}',
+      if (access != 'name') 'valuePicker: (e) => e.$access',
     ];
 
     return '$functionName(${args.join(', ')})';
