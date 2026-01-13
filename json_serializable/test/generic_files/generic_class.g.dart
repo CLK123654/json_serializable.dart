@@ -38,7 +38,10 @@ GenericClassWithConverter<T, S> _$GenericClassWithConverterFromJson<
   S
 >(Map<String, dynamic> json) => GenericClassWithConverter<T, S>()
   ..fieldObject = json['fieldObject']
-  ..fieldDynamic = json['fieldDynamic']
+  ..fieldDynamic = _$JsonConverterFromJson<Map<String, dynamic>, dynamic>(
+    json['fieldDynamic'],
+    _SimpleConverter<dynamic>().fromJson,
+  )
   ..fieldInt = (json['fieldInt'] as num?)?.toInt()
   ..fieldT = _$JsonConverterFromJson<Map<String, dynamic>, T>(
     json['fieldT'],
@@ -59,7 +62,7 @@ Map<String, dynamic> _$GenericClassWithConverterToJson<T extends num, S>(
   GenericClassWithConverter<T, S> instance,
 ) => <String, dynamic>{
   'fieldObject': instance.fieldObject,
-  'fieldDynamic': instance.fieldDynamic,
+  'fieldDynamic': _SimpleConverter<dynamic>().toJson(instance.fieldDynamic),
   'fieldInt': instance.fieldInt,
   'fieldT': _$JsonConverterToJson<Map<String, dynamic>, T>(
     instance.fieldT,

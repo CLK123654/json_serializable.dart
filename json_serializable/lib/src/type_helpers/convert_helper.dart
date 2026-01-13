@@ -9,12 +9,26 @@ import '../type_helper.dart';
 
 /// Information used by [ConvertHelper] when handling `JsonKey`-annotated
 /// fields with `toJson` or `fromJson` values set.
+///
+/// For generic functions like fromJson<T>(String input) => A<T>(),
+/// [genericTypeArgs] contains the inferred type arguments (e.g., ['T'])
+/// that should be used when generating the function call in the output code.
 class ConvertData {
   final String name;
   final DartType paramType;
   final DartType returnType;
 
-  ConvertData(this.name, this.paramType, this.returnType);
+  /// Type arguments to use when calling generic functions.
+  /// For example, for a generic function fromJson<T>(), this might contain ['T'].
+  /// This allows the generated code to call fromJson<T>() instead of fromJson().
+  final List<String>? genericTypeArgs;
+
+  ConvertData(
+    this.name,
+    this.paramType,
+    this.returnType, [
+    this.genericTypeArgs,
+  ]);
 }
 
 abstract class TypeHelperContextWithConvert extends TypeHelperContext {
@@ -38,7 +52,11 @@ class ConvertHelper extends TypeHelper<TypeHelperContextWithConvert> {
       return null;
     }
 
-    return LambdaResult(expression, toJsonData.name);
+    final functionName = toJsonData.genericTypeArgs != null
+        ? '${toJsonData.name}<${toJsonData.genericTypeArgs!.join(', ')}>'
+        : toJsonData.name;
+
+    return LambdaResult(expression, functionName);
   }
 
   @override
@@ -53,9 +71,13 @@ class ConvertHelper extends TypeHelper<TypeHelperContextWithConvert> {
       return null;
     }
 
+    final functionName = fromJsonData.genericTypeArgs != null
+        ? '${fromJsonData.name}<${fromJsonData.genericTypeArgs!.join(', ')}>'
+        : fromJsonData.name;
+
     return LambdaResult(
       expression,
-      fromJsonData.name,
+      functionName,
       asContent: fromJsonData.paramType,
     );
   }

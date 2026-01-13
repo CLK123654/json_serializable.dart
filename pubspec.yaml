@@ -1,4 +1,4 @@
-name: json_serial_workspace     # Can be anything
+name: json_serial_workspace # Can be anything
 environment:
   sdk: ^3.9.0
 

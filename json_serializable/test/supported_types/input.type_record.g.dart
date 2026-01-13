@@ -526,8 +526,8 @@ SimpleClassOfEnumType _$SimpleClassOfEnumTypeFromJson(
   _$recordConvert(
     json['value'],
     ($jsonValue) => (
-      $enumDecode(_$EnumTypeEnumMap, $jsonValue[r'$1']),
-      named: $enumDecode(_$EnumTypeEnumMap, $jsonValue['named']),
+      $enumDecodeValues(EnumType.values, $jsonValue[r'$1']),
+      named: $enumDecodeValues(EnumType.values, $jsonValue['named']),
     ),
   ),
 );
@@ -536,16 +536,9 @@ Map<String, dynamic> _$SimpleClassOfEnumTypeToJson(
   SimpleClassOfEnumType instance,
 ) => <String, dynamic>{
   'value': <String, dynamic>{
-    r'$1': _$EnumTypeEnumMap[instance.value.$1]!,
-    'named': _$EnumTypeEnumMap[instance.value.named]!,
+    r'$1': instance.value.$1.name,
+    'named': instance.value.named.name,
   },
-};
-
-const _$EnumTypeEnumMap = {
-  EnumType.alpha: 'alpha',
-  EnumType.beta: 'beta',
-  EnumType.gamma: 'gamma',
-  EnumType.delta: 'delta',
 };
 
 SimpleClassNullableOfEnumType _$SimpleClassNullableOfEnumTypeFromJson(
@@ -554,8 +547,8 @@ SimpleClassNullableOfEnumType _$SimpleClassNullableOfEnumTypeFromJson(
   _$recordConvertNullable(
     json['value'],
     ($jsonValue) => (
-      $enumDecode(_$EnumTypeEnumMap, $jsonValue[r'$1']),
-      named: $enumDecode(_$EnumTypeEnumMap, $jsonValue['named']),
+      $enumDecodeValues(EnumType.values, $jsonValue[r'$1']),
+      named: $enumDecodeValues(EnumType.values, $jsonValue['named']),
     ),
   ),
 );
@@ -566,8 +559,8 @@ Map<String, dynamic> _$SimpleClassNullableOfEnumTypeToJson(
   'value': instance.value == null
       ? null
       : <String, dynamic>{
-          r'$1': _$EnumTypeEnumMap[instance.value!.$1]!,
-          'named': _$EnumTypeEnumMap[instance.value!.named]!,
+          r'$1': instance.value!.$1.name,
+          'named': instance.value!.named.name,
         },
 };
 
@@ -577,8 +570,8 @@ SimpleClassOfEnumTypeNullable _$SimpleClassOfEnumTypeNullableFromJson(
   _$recordConvert(
     json['value'],
     ($jsonValue) => (
-      $enumDecodeNullable(_$EnumTypeEnumMap, $jsonValue[r'$1']),
-      named: $enumDecodeNullable(_$EnumTypeEnumMap, $jsonValue['named']),
+      $enumDecodeNullableValues(EnumType.values, $jsonValue[r'$1']),
+      named: $enumDecodeNullableValues(EnumType.values, $jsonValue['named']),
     ),
   ),
 );
@@ -587,8 +580,8 @@ Map<String, dynamic> _$SimpleClassOfEnumTypeNullableToJson(
   SimpleClassOfEnumTypeNullable instance,
 ) => <String, dynamic>{
   'value': <String, dynamic>{
-    r'$1': _$EnumTypeEnumMap[instance.value.$1],
-    'named': _$EnumTypeEnumMap[instance.value.named],
+    r'$1': instance.value.$1?.name,
+    'named': instance.value.named?.name,
   },
 };
 
@@ -598,8 +591,11 @@ _$SimpleClassNullableOfEnumTypeNullableFromJson(Map<String, dynamic> json) =>
       _$recordConvertNullable(
         json['value'],
         ($jsonValue) => (
-          $enumDecodeNullable(_$EnumTypeEnumMap, $jsonValue[r'$1']),
-          named: $enumDecodeNullable(_$EnumTypeEnumMap, $jsonValue['named']),
+          $enumDecodeNullableValues(EnumType.values, $jsonValue[r'$1']),
+          named: $enumDecodeNullableValues(
+            EnumType.values,
+            $jsonValue['named'],
+          ),
         ),
       ),
     );
@@ -610,8 +606,8 @@ Map<String, dynamic> _$SimpleClassNullableOfEnumTypeNullableToJson(
   'value': instance.value == null
       ? null
       : <String, dynamic>{
-          r'$1': _$EnumTypeEnumMap[instance.value!.$1],
-          'named': _$EnumTypeEnumMap[instance.value!.named],
+          r'$1': instance.value!.$1?.name,
+          'named': instance.value!.named?.name,
         },
 };
 

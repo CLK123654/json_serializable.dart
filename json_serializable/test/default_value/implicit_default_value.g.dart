@@ -42,7 +42,7 @@ DefaultValueImplicit _$DefaultValueImplicitFromJson(
         'root': ['child'],
       },
   fieldEnum:
-      $enumDecodeNullable(_$GreekEnumMap, json['fieldEnum']) ?? Greek.beta,
+      $enumDecodeNullableValues(Greek.values, json['fieldEnum']) ?? Greek.beta,
   durationField: json['durationField'] == null
       ? const Duration()
       : Duration(microseconds: (json['durationField'] as num).toInt()),
@@ -89,7 +89,7 @@ Map<String, dynamic> _$DefaultValueImplicitToJson(
   'fieldMapSimple': instance.fieldMapSimple,
   'fieldMapListString': instance.fieldMapListString,
   'durationField': instance.durationField.inMicroseconds,
-  'fieldEnum': _$GreekEnumMap[instance.fieldEnum]!,
+  'fieldEnum': instance.fieldEnum.name,
   'constClass': instance.constClass,
   'valueFromConverter': const ConstClassConverter().toJson(
     instance.valueFromConverter,
@@ -100,11 +100,4 @@ Map<String, dynamic> _$DefaultValueImplicitToJson(
       instance.valueFromDefaultValueDefaultConstructor,
   'valueFromDefaultValueNamedConstructor':
       instance.valueFromDefaultValueNamedConstructor,
-};
-
-const _$GreekEnumMap = {
-  Greek.alpha: 'alpha',
-  Greek.beta: 'beta',
-  Greek.gamma: 'gamma',
-  Greek.delta: 'delta',
 };

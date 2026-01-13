@@ -178,6 +178,7 @@ const _fileConfigurationMap = <String, Set<Set<String>>>{
     {'any_map', 'checked'},
   },
   'generic_class': <Set<String>>{},
+  'generic_json_key': <Set<String>>{},
   'json_test_example': {
     {'any_map'},
   },

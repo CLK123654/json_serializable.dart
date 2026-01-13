@@ -148,7 +148,15 @@ ConvertData? _convertData(DartObject obj, FieldElement element, bool isFrom) {
       // to the `fromJson` function.
       // TODO: consider adding error checking here if there is confusion.
     } else if (executableElement.typeParameters.isNotEmpty) {
-      // TODO: check that the generic function allows the target type
+      // Handle generic functions like fromJson<T>(String input) => A<T>()
+      _validateGenericFunction(
+        executableElement,
+        returnType,
+        element.type,
+        paramName,
+        element,
+        isFrom: true,
+      );
     } else if (!returnType.isAssignableTo(element.type)) {
       if (returnType.promoteNonNullable().isAssignableTo(element.type) &&
           hasDefaultValue) {
@@ -170,7 +178,15 @@ ConvertData? _convertData(DartObject obj, FieldElement element, bool isFrom) {
       // to the `fromJson` function.
       // TODO: consider adding error checking here if there is confusion.
     } else if (executableElement.typeParameters.isNotEmpty) {
-      // TODO: check that the generic function allows the target type
+      // Handle generic functions like toJson<T>(A<T> input) => String
+      _validateGenericFunction(
+        executableElement,
+        argType,
+        element.type,
+        paramName,
+        element,
+        isFrom: false,
+      );
     } else if (!element.type.isAssignableTo(argType)) {
       final argTypeCode = typeToCode(argType);
       final elementTypeCode = typeToCode(element.type);
@@ -183,5 +199,101 @@ ConvertData? _convertData(DartObject obj, FieldElement element, bool isFrom) {
     }
   }
 
-  return ConvertData(executableElement.qualifiedName, argType, returnType);
+  // Extract generic type arguments for generic functions
+  // Only add generic type arguments if the function's type parameters
+  // correspond to the class's type parameters. This handles cases like:
+  // - @JsonKey(fromJson: fromJson<T>, toJson: toJson<T>) where T is from the class
+  // But NOT cases like:
+  // - @JsonKey(fromJson: _dataFromJson<T, S, U>) where the function has its own generics
+  List<String>? genericTypeArgs;
+  if (executableElement.typeParameters.isNotEmpty) {
+    final classElement = element.enclosingElement as ClassElement;
+    if (classElement.typeParameters.isNotEmpty) {
+      // Check if the function's type parameters match the class's type parameters
+      // This is a heuristic: if the names match and the counts are the same,
+      // assume they should use the class's type parameters
+      final functionTypeParamNames = executableElement.typeParameters
+          .map((tp) => tp.name)
+          .toSet();
+      final classTypeParamNames = classElement.typeParameters
+          .map((tp) => tp.name)
+          .toSet();
+
+      if (functionTypeParamNames.length == classTypeParamNames.length &&
+          functionTypeParamNames.containsAll(classTypeParamNames)) {
+        genericTypeArgs = classElement.typeParameters
+            .map((tp) => tp.name!)
+            .toList();
+      }
+      // Otherwise, let the function be called without explicit type arguments
+      // Dart's type inference will handle it
+    }
+  }
+
+  return ConvertData(
+    executableElement.qualifiedName,
+    argType,
+    returnType,
+    genericTypeArgs,
+  );
+}
+
+/// Validates that a generic function is compatible with the target type.
+///
+/// This function handles the case where @JsonKey specifies generic functions
+/// like fromJson<T>(String input) => A<T>() or toJson<T>(A<T> input) => String.
+/// We validate that:
+/// 1. The function has at most one type parameter
+/// 2. The function actually uses its type parameter in the relevant type signature
+/// 3. The function signature follows expected patterns
+///
+/// The actual type compatibility is verified at runtime by Dart's type system
+/// when the generated code calls these functions with inferred generic arguments.
+///
+/// For example, for fromJson<T>(String input) => A<T>(), we need to ensure
+/// that A<T> is compatible with the field type when T is inferred from the
+/// field type's generic arguments.
+void _validateGenericFunction(
+  ExecutableElement executableElement,
+  DartType functionType,
+  DartType targetType,
+  String paramName,
+  FieldElement element, {
+  required bool isFrom,
+}) {
+  // For generic functions, we perform basic validation to ensure the function
+  // signature makes sense. We rely on Dart's type inference to handle the
+  // actual generic argument matching during code generation.
+
+  if (executableElement.typeParameters.length > 1) {
+    throw UnsupportedTypeError(
+      targetType,
+      'Generic functions with more than one type parameter are not supported.',
+    );
+  }
+
+  final typeParam = executableElement.typeParameters.single;
+
+  // Check if the function type contains the type parameter
+  bool containsTypeParam(DartType type) {
+    if (type is TypeParameterType) {
+      return type.element == typeParam;
+    }
+    if (type is ParameterizedType) {
+      return type.typeArguments.any(containsTypeParam);
+    }
+    return false;
+  }
+
+  if (!containsTypeParam(functionType)) {
+    throwUnsupported(
+      element,
+      'The `$paramName` function `${executableElement.name}` is generic but '
+      'does not use its type parameter in the ${isFrom ? 'return' : 'argument'} type.',
+    );
+  }
+
+  // For now, we accept generic functions as long as they follow the basic pattern.
+  // The actual type compatibility will be checked at runtime or by the Dart
+  // compiler when the generated code is compiled.
 }

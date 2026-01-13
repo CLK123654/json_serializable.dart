@@ -304,64 +304,49 @@ SimpleClassOfEnumType _$SimpleClassOfEnumTypeFromJson(
   Map<String, dynamic> json,
 ) => SimpleClassOfEnumType(
   (json['value'] as List<dynamic>)
-      .map((e) => $enumDecode(_$EnumTypeEnumMap, e))
+      .map((e) => $enumDecodeValues(EnumType.values, e))
       .toSet(),
 );
 
 Map<String, dynamic> _$SimpleClassOfEnumTypeToJson(
   SimpleClassOfEnumType instance,
-) => <String, dynamic>{
-  'value': instance.value.map((e) => _$EnumTypeEnumMap[e]!).toList(),
-};
-
-const _$EnumTypeEnumMap = {
-  EnumType.alpha: 'alpha',
-  EnumType.beta: 'beta',
-  EnumType.gamma: 'gamma',
-  EnumType.delta: 'delta',
-};
+) => <String, dynamic>{'value': instance.value.map((e) => e.name).toList()};
 
 SimpleClassNullableOfEnumType _$SimpleClassNullableOfEnumTypeFromJson(
   Map<String, dynamic> json,
 ) => SimpleClassNullableOfEnumType(
   (json['value'] as List<dynamic>?)
-      ?.map((e) => $enumDecode(_$EnumTypeEnumMap, e))
+      ?.map((e) => $enumDecodeValues(EnumType.values, e))
       .toSet(),
 );
 
 Map<String, dynamic> _$SimpleClassNullableOfEnumTypeToJson(
   SimpleClassNullableOfEnumType instance,
-) => <String, dynamic>{
-  'value': instance.value?.map((e) => _$EnumTypeEnumMap[e]!).toList(),
-};
+) => <String, dynamic>{'value': instance.value?.map((e) => e.name).toList()};
 
 SimpleClassOfEnumTypeNullable _$SimpleClassOfEnumTypeNullableFromJson(
   Map<String, dynamic> json,
 ) => SimpleClassOfEnumTypeNullable(
   (json['value'] as List<dynamic>)
-      .map((e) => $enumDecodeNullable(_$EnumTypeEnumMap, e))
+      .map((e) => $enumDecodeNullableValues(EnumType.values, e))
       .toSet(),
 );
 
 Map<String, dynamic> _$SimpleClassOfEnumTypeNullableToJson(
   SimpleClassOfEnumTypeNullable instance,
-) => <String, dynamic>{
-  'value': instance.value.map((e) => _$EnumTypeEnumMap[e]).toList(),
-};
+) => <String, dynamic>{'value': instance.value.map((e) => e?.name).toList()};
 
 SimpleClassNullableOfEnumTypeNullable
 _$SimpleClassNullableOfEnumTypeNullableFromJson(Map<String, dynamic> json) =>
     SimpleClassNullableOfEnumTypeNullable(
       (json['value'] as List<dynamic>?)
-          ?.map((e) => $enumDecodeNullable(_$EnumTypeEnumMap, e))
+          ?.map((e) => $enumDecodeNullableValues(EnumType.values, e))
           .toSet(),
     );
 
 Map<String, dynamic> _$SimpleClassNullableOfEnumTypeNullableToJson(
   SimpleClassNullableOfEnumTypeNullable instance,
-) => <String, dynamic>{
-  'value': instance.value?.map((e) => _$EnumTypeEnumMap[e]).toList(),
-};
+) => <String, dynamic>{'value': instance.value?.map((e) => e?.name).toList()};
 
 SimpleClassOfFromJsonDynamicParam _$SimpleClassOfFromJsonDynamicParamFromJson(
   Map<String, dynamic> json,

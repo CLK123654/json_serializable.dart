@@ -15,55 +15,35 @@ Issue559Regression _$Issue559RegressionFromJson(Map<String, dynamic> json) {
     disallowNullValues: const ['status'],
   );
   return Issue559Regression(
-    status: $enumDecodeNullable(
-      _$Issue559RegressionEnumEnumMap,
+    status: $enumDecodeNullableValues(
+      Issue559RegressionEnum.values,
       json['status'],
       unknownValue: JsonKey.nullForUndefinedEnumValue,
     ),
   );
 }
 
-const _$Issue559RegressionEnumEnumMap = {
-  Issue559RegressionEnum.alpha: 'alpha',
-  Issue559RegressionEnum.beta: 'beta',
-  Issue559RegressionEnum.gamma: 'gamma',
-};
-
 Map<String, dynamic> _$Issue1145RegressionAToJson(
   Issue1145RegressionA instance,
 ) => <String, dynamic>{
-  'status': instance.status.map(
-    (k, e) => MapEntry(_$Issue1145RegressionEnumEnumMap[k]!, e),
-  ),
-};
-
-const _$Issue1145RegressionEnumEnumMap = {
-  Issue1145RegressionEnum.alpha: 'alpha',
-  Issue1145RegressionEnum.beta: 'beta',
-  Issue1145RegressionEnum.gamma: 'gamma',
+  'status': instance.status.map((k, e) => MapEntry(k.name, e)),
 };
 
 Map<String, dynamic> _$Issue1145RegressionBToJson(
   Issue1145RegressionB instance,
-) => <String, dynamic>{
-  'status': instance.status
-      .map((e) => _$Issue1145RegressionEnumEnumMap[e])
-      .toList(),
-};
+) => <String, dynamic>{'status': instance.status.map((e) => e?.name).toList()};
 
 Issue1226Regression _$Issue1226RegressionFromJson(Map<String, dynamic> json) =>
     Issue1226Regression(
-      durationType: $enumDecodeNullable(
-        _$Issue1145RegressionEnumEnumMap,
+      durationType: $enumDecodeNullableValues(
+        Issue1145RegressionEnum.values,
         json['durationType'],
       ),
     );
 
 Map<String, dynamic> _$Issue1226RegressionToJson(
   Issue1226Regression instance,
-) => <String, dynamic>{
-  'durationType': ?_$Issue1145RegressionEnumEnumMap[instance.durationType],
-};
+) => <String, dynamic>{'durationType': ?instance.durationType?.name};
 
 const _$StandAloneEnumEnumMap = {
   StandAloneEnum.alpha: 'a',
